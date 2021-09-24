@@ -88,30 +88,31 @@ const getComments = (commentable_type, commentable_id, order, page = 1) => {
  * 若在模态框中，在调用 openDialog 方法后加载评论
  */
 const as = {
-  onCreate: ({ commentable_type, commentable_id, isInDialog }) => (
-    state,
-    actions,
-  ) => {
-    const isTargetUpdated =
-      state.commentable_type !== commentable_type ||
-      state.commentable_id !== commentable_id;
+  onCreate:
+    ({ commentable_type, commentable_id, isInDialog }) =>
+    (state, actions) => {
+      const isTargetUpdated =
+        state.commentable_type !== commentable_type ||
+        state.commentable_id !== commentable_id;
 
-    if (isTargetUpdated && !isInDialog) {
-      actions.setState(stateDefault);
-      actions.setState({ commentable_type, commentable_id });
-      actions.loadData();
-    }
+      if (isTargetUpdated && !isInDialog) {
+        actions.setState(stateDefault);
+        actions.setState({ commentable_type, commentable_id });
+        actions.loadData();
+      }
 
-    if (!isInDialog) {
-      $window.on('scroll', actions.infiniteLoadInPage);
-    }
-  },
+      if (!isInDialog) {
+        $window.on('scroll', actions.infiniteLoadInPage);
+      }
+    },
 
-  onDestroy: ({ isInDialog }) => (_, actions) => {
-    if (!isInDialog) {
-      $window.off('scroll', actions.infiniteLoadInPage);
-    }
-  },
+  onDestroy:
+    ({ isInDialog }) =>
+    (_, actions) => {
+      if (!isInDialog) {
+        $window.off('scroll', actions.infiniteLoadInPage);
+      }
+    },
 
   /**
    * 指定关闭评论模态框
@@ -129,28 +130,30 @@ const as = {
   /**
    * 打开评论模态框
    */
-  openDialog: ({ commentable_type, commentable_id }) => (state, actions) => {
-    $commentsWrapper = $('.comments-wrapper');
+  openDialog:
+    ({ commentable_type, commentable_id }) =>
+    (state, actions) => {
+      $commentsWrapper = $('.comments-wrapper');
 
-    $.showOverlay();
-    $.lockScreen();
-    $('.mc-comments-dialog').show();
-    $document.on('click', '.mdui-overlay', actions.doCloseDialog);
+      $.showOverlay();
+      $.lockScreen();
+      $('.mc-comments-dialog').show();
+      $document.on('click', '.mdui-overlay', actions.doCloseDialog);
 
-    $commentsWrapper.on('scroll', actions.infiniteLoadInDialog);
+      $commentsWrapper.on('scroll', actions.infiniteLoadInDialog);
 
-    const isTargetUpdated =
-      state.commentable_type !== commentable_type ||
-      state.commentable_id !== commentable_id;
+      const isTargetUpdated =
+        state.commentable_type !== commentable_type ||
+        state.commentable_id !== commentable_id;
 
-    if (isTargetUpdated) {
-      actions.setState(stateDefault);
-      actions.setState({ commentable_type, commentable_id });
-      actions.loadData();
-    }
+      if (isTargetUpdated) {
+        actions.setState(stateDefault);
+        actions.setState({ commentable_type, commentable_id });
+        actions.loadData();
+      }
 
-    actions.setState({ open_dialog: true });
-  },
+      actions.setState({ open_dialog: true });
+    },
 
   /**
    * 关闭评论模态框
@@ -313,52 +316,54 @@ const as = {
   /**
    * 下拉加载更多
    */
-  infiniteLoad: ({ isInDialog }) => (state, actions) => {
-    if (state.loading) {
-      return;
-    }
+  infiniteLoad:
+    ({ isInDialog }) =>
+    (state, actions) => {
+      if (state.loading) {
+        return;
+      }
 
-    const { pagination } = state;
+      const { pagination } = state;
 
-    if (pagination.page >= pagination.pages) {
-      return;
-    }
+      if (pagination.page >= pagination.pages) {
+        return;
+      }
 
-    if (isInDialog) {
-      if (
-        $commentsWrapper[0].scrollHeight -
-          $commentsWrapper[0].scrollTop -
-          $commentsWrapper[0].clientHeight >
+      if (isInDialog) {
+        if (
+          $commentsWrapper[0].scrollHeight -
+            $commentsWrapper[0].scrollTop -
+            $commentsWrapper[0].clientHeight >
+          100
+        ) {
+          return;
+        }
+      } else if (
+        document.body.scrollHeight - window.pageYOffset - window.innerHeight >
         100
       ) {
         return;
       }
-    } else if (
-      document.body.scrollHeight - window.pageYOffset - window.innerHeight >
-      100
-    ) {
-      return;
-    }
 
-    actions.setState({ loading: true });
+      actions.setState({ loading: true });
 
-    getComments(
-      state.commentable_type,
-      state.commentable_id,
-      state.order,
-      pagination.page + 1,
-    )
-      .finally(() => {
-        actions.setState({ loading: false });
-      })
-      .then((response) => {
-        actions.setState({
-          comments_data: state.comments_data.concat(response.data),
-          pagination: response.pagination,
-        });
-      })
-      .catch(apiCatch);
-  },
+      getComments(
+        state.commentable_type,
+        state.commentable_id,
+        state.order,
+        pagination.page + 1,
+      )
+        .finally(() => {
+          actions.setState({ loading: false });
+        })
+        .then((response) => {
+          actions.setState({
+            comments_data: state.comments_data.concat(response.data),
+            pagination: response.pagination,
+          });
+        })
+        .catch(apiCatch);
+    },
 
   /**
    * 切换 comments_data 中的字段值
@@ -366,143 +371,146 @@ const as = {
    * @param fieldName 字段名
    * @param value 若为 undefined，则表示切换布尔值，否则设置为 value 值
    */
-  toggleState: ({ comment_id, fieldName, value = undefined }) => (
-    state,
-    actions,
-  ) => {
-    const { comments_data } = state;
-    const index = findIndex(comments_data, 'comment_id', comment_id);
-    const comment = comments_data[index];
+  toggleState:
+    ({ comment_id, fieldName, value = undefined }) =>
+    (state, actions) => {
+      const { comments_data } = state;
+      const index = findIndex(comments_data, 'comment_id', comment_id);
+      const comment = comments_data[index];
 
-    comments_data[index][fieldName] = isUndefined(value)
-      ? !comment[fieldName]
-      : value;
+      comments_data[index][fieldName] = isUndefined(value)
+        ? !comment[fieldName]
+        : value;
 
-    actions.setState({ comments_data });
+      actions.setState({ comments_data });
 
-    // 如果是打开回复列表，则开始加载回复列表
-    if (
-      fieldName === 'show_replies' &&
-      comment[fieldName] &&
-      !comment.replies_pagination
-    ) {
-      actions.loadReplies({ comment });
-    }
-  },
+      // 如果是打开回复列表，则开始加载回复列表
+      if (
+        fieldName === 'show_replies' &&
+        comment[fieldName] &&
+        !comment.replies_pagination
+      ) {
+        actions.loadReplies({ comment });
+      }
+    },
 
   /**
    * 加载回复列表
    */
-  loadReplies: ({ comment }) => (state, actions) => {
-    const isLoaded =
-      !comment.replies_loading &&
-      comment.replies_pagination &&
-      comment.replies_pagination.page === comment.replies_pagination.pages;
-    const isLoading = comment.replies_loading;
+  loadReplies:
+    ({ comment }) =>
+    (state, actions) => {
+      const isLoaded =
+        !comment.replies_loading &&
+        comment.replies_pagination &&
+        comment.replies_pagination.page === comment.replies_pagination.pages;
+      const isLoading = comment.replies_loading;
 
-    if (isLoading || isLoaded) {
-      return;
-    }
+      if (isLoading || isLoaded) {
+        return;
+      }
 
-    actions.toggleState({
-      comment_id: comment.comment_id,
-      fieldName: 'replies_loading',
-      value: true,
-    });
+      actions.toggleState({
+        comment_id: comment.comment_id,
+        fieldName: 'replies_loading',
+        value: true,
+      });
 
-    getReplies({
-      comment_id: comment.comment_id,
-      page: comment.replies_pagination
-        ? comment.replies_pagination.page + 1
-        : 1,
-      per_page: 10,
-      order: 'create_time',
-      include: ['user', 'voting'],
-    })
-      .finally(() => {
-        actions.toggleState({
-          comment_id: comment.comment_id,
-          fieldName: 'replies_loading',
-          value: false,
-        });
+      getReplies({
+        comment_id: comment.comment_id,
+        page: comment.replies_pagination
+          ? comment.replies_pagination.page + 1
+          : 1,
+        per_page: 10,
+        order: 'create_time',
+        include: ['user', 'voting'],
       })
-      .then((response) => {
-        actions.toggleState({
-          comment_id: comment.comment_id,
-          fieldName: 'replies_data',
-          value: comment.replies_data.concat(response.data),
-        });
-        actions.toggleState({
-          comment_id: comment.comment_id,
-          fieldName: 'replies_pagination',
-          value: response.pagination,
-        });
-      })
-      .catch(apiCatch);
-  },
+        .finally(() => {
+          actions.toggleState({
+            comment_id: comment.comment_id,
+            fieldName: 'replies_loading',
+            value: false,
+          });
+        })
+        .then((response) => {
+          actions.toggleState({
+            comment_id: comment.comment_id,
+            fieldName: 'replies_data',
+            value: comment.replies_data.concat(response.data),
+          });
+          actions.toggleState({
+            comment_id: comment.comment_id,
+            fieldName: 'replies_pagination',
+            value: response.pagination,
+          });
+        })
+        .catch(apiCatch);
+    },
 
   /**
    * 发表回复
    */
-  submitReply: ({ target, comment }) => (state, actions) => {
-    const $element = $(target).parent();
-    const $button = $element.find('.submit');
+  submitReply:
+    ({ target, comment }) =>
+    (state, actions) => {
+      const $element = $(target).parent();
+      const $button = $element.find('.submit');
 
-    if ($button[0].disabled) {
-      return;
-    }
+      if ($button[0].disabled) {
+        return;
+      }
 
-    const $textarea = $element.find('textarea');
-    const value = $textarea.val();
-    if (!value) {
-      mdui.snackbar('请输入回复内容');
-      return;
-    }
+      const $textarea = $element.find('textarea');
+      const value = $textarea.val();
+      if (!value) {
+        mdui.snackbar('请输入回复内容');
+        return;
+      }
 
-    const params = {
-      comment_id: comment.comment_id,
-      content: value,
-      include: ['user', 'voting'],
-    };
+      const params = {
+        comment_id: comment.comment_id,
+        content: value,
+        include: ['user', 'voting'],
+      };
 
-    actions.toggleState({
-      comment_id: comment.comment_id,
-      fieldName: 'reply_submitting',
-      value: true,
-    });
-
-    createReply(params)
-      .finally(() => {
-        actions.toggleState({
-          comment_id: comment.comment_id,
-          fieldName: 'reply_submitting',
-          value: false,
-        });
-      })
-      .then(() => {
-        mdui.snackbar('回复发布成功');
-
-        // 发表成功后，隐藏回复框，回复数量+1
-        actions.toggleState({
-          comment_id: comment.comment_id,
-          fieldName: 'show_new_reply',
-        });
-        actions.toggleState({
-          comment_id: comment.comment_id,
-          fieldName: 'reply_count',
-          value: comment.reply_count + 1,
-        });
-        // todo
-      })
-      .catch((response) => {
-        if (response.code === COMMON_FIELD_VERIFY_FAILED) {
-          mdui.snackbar(response.errors.content);
-          return;
-        }
-
-        apiCatch(response);
+      actions.toggleState({
+        comment_id: comment.comment_id,
+        fieldName: 'reply_submitting',
+        value: true,
       });
-  },
+
+      createReply(params)
+        .finally(() => {
+          actions.toggleState({
+            comment_id: comment.comment_id,
+            fieldName: 'reply_submitting',
+            value: false,
+          });
+        })
+        .then(() => {
+          mdui.snackbar('回复发布成功');
+
+          // 发表成功后，隐藏回复框，回复数量+1
+          actions.toggleState({
+            comment_id: comment.comment_id,
+            fieldName: 'show_new_reply',
+          });
+          actions.toggleState({
+            comment_id: comment.comment_id,
+            fieldName: 'reply_count',
+            value: comment.reply_count + 1,
+          });
+          // todo
+        })
+        .catch((response) => {
+          if (response.code === COMMON_FIELD_VERIFY_FAILED) {
+            mdui.snackbar(response.errors.content);
+            return;
+          }
+
+          apiCatch(response);
+        });
+    },
 };
 
 export default extend(as, commonActions, voteActions, userPopoverActions);

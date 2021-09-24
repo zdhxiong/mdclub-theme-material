@@ -9,15 +9,17 @@ import userPopoverActions from '~/components/user-popover/actions';
 import stateDefault from './stateDefault';
 
 const as = {
-  onCreate: ({ article_id }) => (state, actions) => {
-    emit('route_update');
+  onCreate:
+    ({ article_id }) =>
+    (state, actions) => {
+      emit('route_update');
 
-    if (state.article_id !== article_id) {
-      actions.setState(stateDefault);
-      actions.setState({ article_id });
-      actions.loadArticle();
-    }
-  },
+      if (state.article_id !== article_id) {
+        actions.setState(stateDefault);
+        actions.setState({ article_id });
+        actions.loadArticle();
+      }
+    },
 
   loadArticle: () => (state, actions) => {
     // 从页面中加载文章数据

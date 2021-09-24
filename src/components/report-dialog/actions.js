@@ -10,58 +10,60 @@ import stateDefault from './stateDefault';
 let dialog;
 
 const as = {
-  onCreate: ({ element }) => (_, actions) => {
-    const $element = $(element).mutation();
+  onCreate:
+    ({ element }) =>
+    (_, actions) => {
+      const $element = $(element).mutation();
 
-    dialog = new mdui.Dialog($element, {
-      history: false,
-    });
+      dialog = new mdui.Dialog($element, {
+        history: false,
+      });
 
-    dialog.$element.on('confirm.mdui.dialog', () => {
-      const $customReason = dialog.$element.find('.custom-reason');
-      const customReason = $customReason.val();
-      const { type, item, reason } = actions.getState();
-      const getReportableId = () => {
-        switch (type) {
-          case 'question':
-            return item.question_id;
-          case 'answer':
-            return item.answer_id;
-          case 'article':
-            return item.article_id;
-          case 'comment':
-            return item.comment_id;
-          case 'user':
-            return item.user_id;
-          default:
-            return null;
-        }
-      };
-
-      createReport({
-        reportable_type: type,
-        reportable_id: getReportableId(),
-        reason: reason === '其他原因' ? customReason : reason,
-      })
-        .finally(() => {
-          actions.setState(stateDefault);
-          $customReason.val('');
-        })
-        .then(() => {
-          mdui.snackbar('举报成功');
-        })
-        .catch((response) => {
-          if (response.code === COMMON_FIELD_VERIFY_FAILED) {
-            mdui.snackbar(Object.values(response.errors)[0]);
-            return;
+      dialog.$element.on('confirm.mdui.dialog', () => {
+        const $customReason = dialog.$element.find('.custom-reason');
+        const customReason = $customReason.val();
+        const { type, item, reason } = actions.getState();
+        const getReportableId = () => {
+          switch (type) {
+            case 'question':
+              return item.question_id;
+            case 'answer':
+              return item.answer_id;
+            case 'article':
+              return item.article_id;
+            case 'comment':
+              return item.comment_id;
+            case 'user':
+              return item.user_id;
+            default:
+              return null;
           }
+        };
 
-          apiCatch(response);
-        });
+        createReport({
+          reportable_type: type,
+          reportable_id: getReportableId(),
+          reason: reason === '其他原因' ? customReason : reason,
+        })
+          .finally(() => {
+            actions.setState(stateDefault);
+            $customReason.val('');
+          })
+          .then(() => {
+            mdui.snackbar('举报成功');
+          })
+          .catch((response) => {
+            if (response.code === COMMON_FIELD_VERIFY_FAILED) {
+              mdui.snackbar(Object.values(response.errors)[0]);
+              return;
+            }
 
-      dialog.close();
-    });
-  },
+            apiCatch(response);
+          });
+
+        dialog.close();
+      });
+    },
 
   /**
    * 选择原因
@@ -79,10 +81,12 @@ const as = {
   /**
    * 打开举报弹框
    */
-  open: ({ type, item }) => (_, actions) => {
-    actions.setState({ type, item });
-    dialog.open();
-  },
+  open:
+    ({ type, item }) =>
+    (_, actions) => {
+      actions.setState({ type, item });
+      dialog.open();
+    },
 
   /**
    * 关闭举报弹框

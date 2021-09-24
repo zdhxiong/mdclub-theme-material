@@ -19,6 +19,6 @@ export default (element) => {
   $(element)
     .find('pre')
     .each((_, block) => {
-      hljs.highlightBlock(block);
+      hljs.highlightElement(block);
     });
 };

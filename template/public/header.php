@@ -19,7 +19,7 @@
       )
     ?></title>
   <?php if ($NODE_ENV === 'production'): ?>
-  <link rel="stylesheet" href="<?= get_theme_static_url() ?>/index.441d941d.css">
+  <link rel="stylesheet" href="<?= get_theme_static_url() ?>/index.1530e642.css">
   <?php endif; ?>
 </head>
 <body class="mdui-drawer-body-left">

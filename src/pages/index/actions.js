@@ -84,58 +84,53 @@ const as = {
   /**
    * 加载话题列表、提问列表、和文章列表
    */
-  loadData: ({
-    localParamName,
-    func,
-    fieldPrefix,
-    include,
-    order,
-    per_page,
-  }) => (state, actions) => {
-    const loadFromPage = () => {
-      const response = window[localParamName];
+  loadData:
+    ({ localParamName, func, fieldPrefix, include, order, per_page }) =>
+    (state, actions) => {
+      const loadFromPage = () => {
+        const response = window[localParamName];
 
-      if (response) {
+        if (response) {
+          actions.setState({
+            [`${fieldPrefix}_data`]: response.data,
+            [`${fieldPrefix}_pagination`]: response.pagination,
+          });
+          window[localParamName] = null;
+        }
+
+        return response;
+      };
+
+      const loadFromServer = () => {
         actions.setState({
-          [`${fieldPrefix}_data`]: response.data,
-          [`${fieldPrefix}_pagination`]: response.pagination,
+          [`${fieldPrefix}_loading`]: true,
         });
-        window[localParamName] = null;
+
+        func({
+          include,
+          order,
+          per_page,
+        })
+          .finally(() => {
+            actions.setState({
+              [`${fieldPrefix}_loading`]: false,
+            });
+          })
+          .then(({ data, pagination }) => {
+            actions.setState({
+              [`${fieldPrefix}_data`]: data,
+              [`${fieldPrefix}_pagination`]: pagination,
+            });
+          })
+          .catch(apiCatch);
+      };
+
+      if (loadFromPage()) {
+        return;
       }
 
-      return response;
-    };
-
-    const loadFromServer = () => {
-      actions.setState({
-        [`${fieldPrefix}_loading`]: true,
-      });
-
-      func({
-        include,
-        order,
-        per_page,
-      })
-        .finally(() => {
-          actions.setState({
-            [`${fieldPrefix}_loading`]: false,
-          });
-        })
-        .then(({ data, pagination }) => {
-          actions.setState({
-            [`${fieldPrefix}_data`]: data,
-            [`${fieldPrefix}_pagination`]: pagination,
-          });
-        })
-        .catch(apiCatch);
-    };
-
-    if (loadFromPage()) {
-      return;
-    }
-
-    loadFromServer();
-  },
+      loadFromServer();
+    },
 
   afterItemClick: (item) => {
     scroll_position = window.pageYOffset;

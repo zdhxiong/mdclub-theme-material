@@ -218,8 +218,8 @@ const toggleUserInRelationships = (primaryKey, dataName, actions) => {
   const data = state[dataName];
 
   const changeFollow = () => {
-    data.relationships.user.relationships.is_following = !data.relationships
-      .user.relationships.is_following;
+    data.relationships.user.relationships.is_following =
+      !data.relationships.user.relationships.is_following;
     actions.setState({ [dataName]: data });
   };
 
@@ -250,36 +250,35 @@ export default {
    * @param primaryKey 仅 relationships-user 需要传入该参数，表示提问ID或文章ID或评论ID的字段名
    * @param id 仅 users, topics, relationships-user 中需要传入该参数
    */
-  toggleFollow: ({ type, dataName = null, primaryKey = null, id = null }) => (
-    state,
-    actions,
-  ) => {
-    if (!currentUser()) {
-      emit('login_open');
-      return;
-    }
-
-    // 文章、提问、用户、话题详情页
-    if (['article', 'question', 'user', 'topic'].indexOf(type) > -1) {
-      toggleOne(type, state, actions);
-      return;
-    }
-
-    // 用户、话题列表页，及 users_dialog 组件中
-    if (
-      ['users', 'topics', 'index_topics', 'users_dialog'].indexOf(type) > -1
-    ) {
-      toggleInList(type, id, state, actions);
-      return;
-    }
-
-    // 在 user-popover 中，且对用户的关注状态
-    if (['relationships-user'].indexOf(type) > -1) {
-      if (dataName === 'article' || dataName === 'question') {
-        toggleUserInRelationships(primaryKey, dataName, actions);
-      } else {
-        toggleUserInRelationshipsInList(primaryKey, id, dataName, actions);
+  toggleFollow:
+    ({ type, dataName = null, primaryKey = null, id = null }) =>
+    (state, actions) => {
+      if (!currentUser()) {
+        emit('login_open');
+        return;
       }
-    }
-  },
+
+      // 文章、提问、用户、话题详情页
+      if (['article', 'question', 'user', 'topic'].indexOf(type) > -1) {
+        toggleOne(type, state, actions);
+        return;
+      }
+
+      // 用户、话题列表页，及 users_dialog 组件中
+      if (
+        ['users', 'topics', 'index_topics', 'users_dialog'].indexOf(type) > -1
+      ) {
+        toggleInList(type, id, state, actions);
+        return;
+      }
+
+      // 在 user-popover 中，且对用户的关注状态
+      if (['relationships-user'].indexOf(type) > -1) {
+        if (dataName === 'article' || dataName === 'question') {
+          toggleUserInRelationships(primaryKey, dataName, actions);
+        } else {
+          toggleUserInRelationshipsInList(primaryKey, id, dataName, actions);
+        }
+      }
+    },
 };

@@ -43,88 +43,90 @@ const as = {
    * {type: string, id: int}
    * 用户列表类型 followees, followers, topic_followers, question_followers, article_followers
    */
-  open: ({ type, id }) => (state, actions) => {
-    if (!dialog) {
-      dialog = new mdui.Dialog('.mc-users-dialog', {
-        history: false,
+  open:
+    ({ type, id }) =>
+    (state, actions) => {
+      if (!dialog) {
+        dialog = new mdui.Dialog('.mc-users-dialog', {
+          history: false,
+        });
+
+        dialog.$element.on('closed.mdui.dialog', () => {
+          actions.setState(stateDefault);
+        });
+      }
+
+      actions.setState({
+        type,
+        data: [],
+        pagination: null,
+        loading: true,
       });
 
-      dialog.$element.on('closed.mdui.dialog', () => {
-        actions.setState(stateDefault);
-      });
-    }
+      dialog.open();
 
-    actions.setState({
-      type,
-      data: [],
-      pagination: null,
-      loading: true,
-    });
+      const loaded = (promise) => {
+        promise
+          .finally(() => {
+            actions.setState({ loading: false });
+          })
+          .then(({ data, pagination }) => {
+            actions.setState({
+              data: actions.getState().data.concat(data),
+              pagination,
+            });
+          })
+          .catch(apiCatch);
+      };
 
-    dialog.open();
+      const infiniteLoad = () => {
+        if (actions.getState().loading) {
+          return;
+        }
 
-    const loaded = (promise) => {
-      promise
-        .finally(() => {
-          actions.setState({ loading: false });
-        })
-        .then(({ data, pagination }) => {
-          actions.setState({
-            data: actions.getState().data.concat(data),
-            pagination,
-          });
-        })
-        .catch(apiCatch);
-    };
+        const { pagination } = actions.getState();
 
-    const infiniteLoad = () => {
-      if (actions.getState().loading) {
-        return;
-      }
+        if (!pagination) {
+          return;
+        }
 
-      const { pagination } = actions.getState();
+        if (pagination.page >= pagination.pages) {
+          return;
+        }
 
-      if (!pagination) {
-        return;
-      }
+        if (
+          $content[0].scrollHeight -
+            $content[0].scrollTop -
+            $content[0].offsetHeight >
+          100
+        ) {
+          return;
+        }
 
-      if (pagination.page >= pagination.pages) {
-        return;
-      }
+        actions.setState({ loading: true });
 
-      if (
-        $content[0].scrollHeight -
-          $content[0].scrollTop -
-          $content[0].offsetHeight >
-        100
-      ) {
-        return;
-      }
-
-      actions.setState({ loading: true });
+        loaded(
+          service[type]({
+            [paramField[type]]: id,
+            page: pagination.page + 1,
+            include: ['is_following', 'is_me'],
+          }),
+        );
+      };
 
       loaded(
         service[type]({
           [paramField[type]]: id,
-          page: pagination.page + 1,
           include: ['is_following', 'is_me'],
         }),
       );
-    };
 
-    loaded(
-      service[type]({
-        [paramField[type]]: id,
-        include: ['is_following', 'is_me'],
-      }),
-    );
+      $content.on('scroll', infiniteLoad);
 
-    $content.on('scroll', infiniteLoad);
-
-    $dialog.on('close.mdui.dialog', () => {
-      $content.off('scroll', infiniteLoad);
-    });
-  },
+      $dialog.on('close.mdui.dialog', () => {
+        $content.off('scroll', infiniteLoad);
+      });
+    },
 
   /**
    * 关闭对话框

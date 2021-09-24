@@ -1,7 +1,8 @@
+const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const postcssImport = require('postcss-import');
 const autoprefixer = require('autoprefixer');
-const { outputFolder, resolve, isProduction } = require('./config');
+const { resolve, isProduction } = require('./config');
 
 function styleLoaders(loader) {
   const loaders = [
@@ -40,7 +41,7 @@ function styleLoaders(loader) {
       loader: MiniCssExtractPlugin.loader,
       options: {
         esModule: true,
-        publicPath: outputFolder,
+        publicPath: 'auto',
       },
     },].concat(loaders);
   } else {
@@ -87,15 +88,13 @@ module.exports = {
       },
       {
         test: /\.(woff|woff2|eot|ttf|otf|png|svg|jpg|gif)$/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              publicPath: isProduction ? './' : './static/theme/material/',
-            },
-          },
-        ],
+        type: 'asset/resource',
       },
     ],
   },
+  plugins: [
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+    }),
+  ],
 };

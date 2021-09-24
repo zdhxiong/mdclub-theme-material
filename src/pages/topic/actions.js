@@ -26,51 +26,55 @@ const as = {
   /**
    * 加载提问列表或文字列表
    */
-  getContexts: ({ tabName, page }) => (state) => {
-    const params = {
-      topic_id: state.topic_id,
-      page,
-      per_page,
-      include,
-      order: state[`${tabName}_order`],
-    };
+  getContexts:
+    ({ tabName, page }) =>
+    (state) => {
+      const params = {
+        topic_id: state.topic_id,
+        page,
+        per_page,
+        include,
+        order: state[`${tabName}_order`],
+      };
 
-    if (tabName === TABNAME_QUESTIONS) {
-      return getQuestions(params);
-    }
+      if (tabName === TABNAME_QUESTIONS) {
+        return getQuestions(params);
+      }
 
-    return getArticles(params);
-  },
+      return getArticles(params);
+    },
 
-  onCreate: ({ topic_id }) => (state, actions) => {
-    emit('route_update');
+  onCreate:
+    ({ topic_id }) =>
+    (state, actions) => {
+      emit('route_update');
 
-    tab = new mdui.Tab('.mc-tab');
-    tabIndex = tab.activeIndex;
-
-    if (state.topic_id !== topic_id) {
-      actions.setState(stateDefault);
-      actions.setState({ topic_id });
-      actions.loadTopic();
-      actions.afterChangeTab();
-    }
-
-    tab.$element.on('change.mdui.tab', () => {
+      tab = new mdui.Tab('.mc-tab');
       tabIndex = tab.activeIndex;
-      window.scrollTo(0, 0);
-      window.history.replaceState({}, '', `#${tabs[tabIndex]}`);
-      actions.afterChangeTab();
-    });
 
-    // 恢复滚动条位置
-    if (scroll_position) {
-      window.scrollTo(0, scroll_position);
-      scroll_position = 0;
-    }
+      if (state.topic_id !== topic_id) {
+        actions.setState(stateDefault);
+        actions.setState({ topic_id });
+        actions.loadTopic();
+        actions.afterChangeTab();
+      }
 
-    // 绑定加载更多
-    $window.on('scroll', actions.infiniteLoad);
-  },
+      tab.$element.on('change.mdui.tab', () => {
+        tabIndex = tab.activeIndex;
+        window.scrollTo(0, 0);
+        window.history.replaceState({}, '', `#${tabs[tabIndex]}`);
+        actions.afterChangeTab();
+      });
+
+      // 恢复滚动条位置
+      if (scroll_position) {
+        window.scrollTo(0, scroll_position);
+        scroll_position = 0;
+      }
+
+      // 绑定加载更多
+      $window.on('scroll', actions.infiniteLoad);
+    },
 
   onDestroy: () => (_, actions) => {
     $window.off('scroll', actions.infiniteLoad);

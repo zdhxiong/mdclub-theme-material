@@ -25,21 +25,23 @@ export const richText = (html) => (element) => {
  * @param str 字符串
  * @param length 截取的字符串长度，默认不截取
  */
-export const summaryText = (str, length = 0) => (element) => {
-  if (data(element, 'html') === str) {
-    return;
-  }
+export const summaryText =
+  (str, length = 0) =>
+  (element) => {
+    if (data(element, 'html') === str) {
+      return;
+    }
 
-  data(element, 'html', str);
+    data(element, 'html', str);
 
-  let text = str.replace(/<[^>]+>/g, '');
+    let text = str.replace(/<[^>]+>/g, '');
 
-  if (length) {
-    text = text.substr(0, length);
-  }
+    if (length) {
+      text = text.substr(0, length);
+    }
 
-  element.innerHTML = text;
-};
+    element.innerHTML = text;
+  };
 
 /**
  * 纯文本，把换行符转换为 <p>

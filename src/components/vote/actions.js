@@ -130,9 +130,11 @@ export default {
    *              replies: 评论回复列表
    * @param commentIndex 仅 replies 中需要，表示评论的索引号
    */
-  voteUp: ({ item, type, commentIndex }) => (state, actions) => {
-    toggle(getIdValue(item, type), commentIndex, type, 'up', state, actions);
-  },
+  voteUp:
+    ({ item, type, commentIndex }) =>
+    (state, actions) => {
+      toggle(getIdValue(item, type), commentIndex, type, 'up', state, actions);
+    },
 
   /**
    * 点击不赞同
@@ -144,7 +146,16 @@ export default {
    *              replies：评论回复列表
    * @param commentIndex 仅 replies 中需要，表示评论的索引号
    */
-  voteDown: ({ item, type, commentIndex }) => (state, actions) => {
-    toggle(getIdValue(item, type), commentIndex, type, 'down', state, actions);
-  },
+  voteDown:
+    ({ item, type, commentIndex }) =>
+    (state, actions) => {
+      toggle(
+        getIdValue(item, type),
+        commentIndex,
+        type,
+        'down',
+        state,
+        actions,
+      );
+    },
 };

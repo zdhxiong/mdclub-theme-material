@@ -40,26 +40,28 @@ const as = {
   /**
    * 加载提问列表、回答列表或文字列表
    */
-  getContexts: ({ tabName, page }) => (state) => {
-    const params = {
-      user_id: interviewee_id,
-      page,
-      per_page,
-      include: ['user', 'topics', 'is_following'],
-      order: state[`${tabName}_order`],
-    };
+  getContexts:
+    ({ tabName, page }) =>
+    (state) => {
+      const params = {
+        user_id: interviewee_id,
+        page,
+        per_page,
+        include: ['user', 'topics', 'is_following'],
+        order: state[`${tabName}_order`],
+      };
 
-    if (tabName === TABNAME_QUESTIONS) {
-      return getQuestions(params);
-    }
+      if (tabName === TABNAME_QUESTIONS) {
+        return getQuestions(params);
+      }
 
-    if (tabName === TABNAME_ARTICLES) {
-      return getArticles(params);
-    }
+      if (tabName === TABNAME_ARTICLES) {
+        return getArticles(params);
+      }
 
-    params.include = ['user', 'question', 'voting'];
-    return getAnswers(params);
-  },
+      params.include = ['user', 'question', 'voting'];
+      return getAnswers(params);
+    },
 
   onCreate: (props) => (_, actions) => {
     emit('route_update');

@@ -17,11 +17,13 @@ const as = {
   /**
    * 打开分享弹框
    */
-  open: ({ url, title }) => (_, actions) => {
-    actions.setState({ url, title });
+  open:
+    ({ url, title }) =>
+    (_, actions) => {
+      actions.setState({ url, title });
 
-    dialog.open();
-  },
+      dialog.open();
+    },
 
   /**
    * 关闭分享弹框

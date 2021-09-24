@@ -85,62 +85,61 @@ export default {
   /**
    * 点击话题
    */
-  topicSelectorChange: ({ event, dataIndex }) => (state, actions) => {
-    const isChecked = event.target.checked;
-    const {
-      topics_data,
-      editor_selected_topics,
-      topics_max_selectable,
-    } = state;
+  topicSelectorChange:
+    ({ event, dataIndex }) =>
+    (state, actions) => {
+      const isChecked = event.target.checked;
+      const { topics_data, editor_selected_topics, topics_max_selectable } =
+        state;
 
-    if (isChecked && editor_selected_topics.length >= topics_max_selectable) {
-      mdui.snackbar(`最多只能选择 ${topics_max_selectable} 个话题`);
-      return;
-    }
+      if (isChecked && editor_selected_topics.length >= topics_max_selectable) {
+        mdui.snackbar(`最多只能选择 ${topics_max_selectable} 个话题`);
+        return;
+      }
 
-    if (isChecked) {
-      const selectedTopicsResult = editor_selected_topics.concat([
-        topics_data[dataIndex],
-      ]);
+      if (isChecked) {
+        const selectedTopicsResult = editor_selected_topics.concat([
+          topics_data[dataIndex],
+        ]);
 
-      actions.setState({
-        editor_selected_topics: selectedTopicsResult,
-        editor_selected_topic_ids: selectedTopicsResult.map(
-          (topic) => topic.topic_id,
-        ),
-      });
-    } else {
-      const dataIndexToSelectedIndex = (index, data, selected) => {
-        const { topic_id } = data[index];
-        let result;
-
-        each(selected, (resultIndex, topic) => {
-          if (topic.topic_id === topic_id) {
-            result = resultIndex;
-            return false;
-          }
-          return true;
+        actions.setState({
+          editor_selected_topics: selectedTopicsResult,
+          editor_selected_topic_ids: selectedTopicsResult.map(
+            (topic) => topic.topic_id,
+          ),
         });
+      } else {
+        const dataIndexToSelectedIndex = (index, data, selected) => {
+          const { topic_id } = data[index];
+          let result;
 
-        return result;
-      };
+          each(selected, (resultIndex, topic) => {
+            if (topic.topic_id === topic_id) {
+              result = resultIndex;
+              return false;
+            }
+            return true;
+          });
 
-      const selectedIndex = dataIndexToSelectedIndex(
-        dataIndex,
-        topics_data,
-        editor_selected_topics,
-      );
-      editor_selected_topics.splice(selectedIndex, 1);
-      actions.setState({
-        editor_selected_topics,
-        editor_selected_topic_ids: editor_selected_topics.map(
-          (topic) => topic.topic_id,
-        ),
-      });
-    }
+          return result;
+        };
 
-    actions.saveToLocalStorage();
-  },
+        const selectedIndex = dataIndexToSelectedIndex(
+          dataIndex,
+          topics_data,
+          editor_selected_topics,
+        );
+        editor_selected_topics.splice(selectedIndex, 1);
+        actions.setState({
+          editor_selected_topics,
+          editor_selected_topic_ids: editor_selected_topics.map(
+            (topic) => topic.topic_id,
+          ),
+        });
+      }
+
+      actions.saveToLocalStorage();
+    },
 
   /**
    * 移除选中的话题

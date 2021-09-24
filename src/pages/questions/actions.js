@@ -248,65 +248,67 @@ const as = {
   /**
    * 发布提问
    */
-  publish: ({ title, content }) => (state, actions) => {
-    const { editor_selected_topic_ids: topic_ids, auto_save_key } = state;
+  publish:
+    ({ title, content }) =>
+    (state, actions) => {
+      const { editor_selected_topic_ids: topic_ids, auto_save_key } = state;
 
-    if (!title) {
-      mdui.snackbar('请输入标题');
-      return;
-    }
+      if (!title) {
+        mdui.snackbar('请输入标题');
+        return;
+      }
 
-    if (!topic_ids.length) {
-      mdui.snackbar('请选择话题');
-      return;
-    }
+      if (!topic_ids.length) {
+        mdui.snackbar('请选择话题');
+        return;
+      }
 
-    if (!content || content === '<p><br></p>') {
-      mdui.snackbar('请输入正文');
-      return;
-    }
+      if (!content || content === '<p><br></p>') {
+        mdui.snackbar('请输入正文');
+        return;
+      }
 
-    actions.setState({ publishing: true });
+      actions.setState({ publishing: true });
 
-    createQuestion({
-      title,
-      topic_ids,
-      content_rendered: content,
-      include,
-    })
-      .finally(() => {
-        actions.setState({ publishing: false });
+      createQuestion({
+        title,
+        topic_ids,
+        content_rendered: content,
+        include,
       })
-      .then((response) => {
-        is_updated[TABNAME_RECENT] = true;
-        is_updated[TABNAME_POPULAR] = true;
-        is_updated[TABNAME_FOLLOWING] = true;
+        .finally(() => {
+          actions.setState({ publishing: false });
+        })
+        .then((response) => {
+          is_updated[TABNAME_RECENT] = true;
+          is_updated[TABNAME_POPULAR] = true;
+          is_updated[TABNAME_FOLLOWING] = true;
 
-        // 清空草稿和编辑器内容
-        window.localStorage.removeItem(`${auto_save_key}-title`);
-        window.localStorage.removeItem(`${auto_save_key}-topics`);
-        window.localStorage.removeItem(`${auto_save_key}-content`);
-        actions.setState({
-          editor_selected_topics: [],
-          editor_selected_topic_ids: [],
+          // 清空草稿和编辑器内容
+          window.localStorage.removeItem(`${auto_save_key}-title`);
+          window.localStorage.removeItem(`${auto_save_key}-topics`);
+          window.localStorage.removeItem(`${auto_save_key}-content`);
+          actions.setState({
+            editor_selected_topics: [],
+            editor_selected_topic_ids: [],
+          });
+          actions.editorClose();
+
+          // 到提问详情页
+          window.G_QUESTION = response.data;
+          location.actions.go(
+            fullPath(`/questions/${response.data.question_id}`),
+          );
+        })
+        .catch((response) => {
+          if (response.code === COMMON_FIELD_VERIFY_FAILED) {
+            mdui.snackbar(Object.values(response.errors)[0]);
+            return;
+          }
+
+          apiCatch(response);
         });
-        actions.editorClose();
-
-        // 到提问详情页
-        window.G_QUESTION = response.data;
-        location.actions.go(
-          fullPath(`/questions/${response.data.question_id}`),
-        );
-      })
-      .catch((response) => {
-        if (response.code === COMMON_FIELD_VERIFY_FAILED) {
-          mdui.snackbar(Object.values(response.errors)[0]);
-          return;
-        }
-
-        apiCatch(response);
-      });
-  },
+    },
 
   /**
    * 点击链接后，保存最后访问的提问ID和提问详情

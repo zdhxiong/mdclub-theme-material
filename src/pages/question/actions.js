@@ -30,36 +30,38 @@ const as = {
    * @param answer_id 提问详情页该参数值为 0
    * @param route question, answer
    */
-  onCreate: ({ question_id, answer_id, route }) => (state, actions) => {
-    emit('route_update');
+  onCreate:
+    ({ question_id, answer_id, route }) =>
+    (state, actions) => {
+      emit('route_update');
 
-    actions.setState({ route });
+      actions.setState({ route });
 
-    if (answer_id) {
-      // 回答详情页
-      if (state.answer_id !== answer_id) {
-        actions.setState(stateDefault);
-        actions.setState({ question_id, answer_id });
-        actions.loadQuestion();
-        actions.loadAnswer();
+      if (answer_id) {
+        // 回答详情页
+        if (state.answer_id !== answer_id) {
+          actions.setState(stateDefault);
+          actions.setState({ question_id, answer_id });
+          actions.loadQuestion();
+          actions.loadAnswer();
+        }
+      } else {
+        // 提问详情页
+        if (state.question_id !== question_id || state.answer_id) {
+          actions.setState(stateDefault);
+          actions.setState({ question_id });
+          actions.loadQuestion();
+          actions.loadAnswers();
+        }
+
+        // 发表回答后，到了回答页面，然后返回到提问页面，需要重新加载回答列表
+        if (!state.answer_pagination) {
+          actions.loadAnswers();
+        }
+
+        $window.on('scroll', actions.infiniteLoadAnswers);
       }
-    } else {
-      // 提问详情页
-      if (state.question_id !== question_id || state.answer_id) {
-        actions.setState(stateDefault);
-        actions.setState({ question_id });
-        actions.loadQuestion();
-        actions.loadAnswers();
-      }
-
-      // 发表回答后，到了回答页面，然后返回到提问页面，需要重新加载回答列表
-      if (!state.answer_pagination) {
-        actions.loadAnswers();
-      }
-
-      $window.on('scroll', actions.infiniteLoadAnswers);
-    }
-  },
+    },
 
   onDestroy: () => (state, actions) => {
     if (state.route === 'question') {
@@ -269,57 +271,59 @@ const as = {
   /**
    * 发布回答
    */
-  publishAnswer: ({ content }) => (state, actions) => {
-    const { auto_save_key } = state;
+  publishAnswer:
+    ({ content }) =>
+    (state, actions) => {
+      const { auto_save_key } = state;
 
-    if (!content || content === '<p><br></p>') {
-      mdui.snackbar('请输入正文');
-      return;
-    }
+      if (!content || content === '<p><br></p>') {
+        mdui.snackbar('请输入正文');
+        return;
+      }
 
-    actions.setState({ answer_publishing: true });
+      actions.setState({ answer_publishing: true });
 
-    createAnswer({
-      question_id: state.question_id,
-      content_rendered: content,
-      include: ['user', 'voting'],
-    })
-      .finally(() => {
-        actions.setState({ answer_publishing: false });
+      createAnswer({
+        question_id: state.question_id,
+        content_rendered: content,
+        include: ['user', 'voting'],
       })
-      .then((response) => {
-        window.localStorage.removeItem(`${auto_save_key}-content`);
-        actions.editorClose();
+        .finally(() => {
+          actions.setState({ answer_publishing: false });
+        })
+        .then((response) => {
+          window.localStorage.removeItem(`${auto_save_key}-content`);
+          actions.editorClose();
 
-        // 发表回答后，回答数量 + 1
-        const { question } = state;
-        question.answer_count += 1;
+          // 发表回答后，回答数量 + 1
+          const { question } = state;
+          question.answer_count += 1;
 
-        // 下次进入重新加载回答
-        actions.setState({
-          question,
-          answer_data: [],
-          answer_pagination: null,
+          // 下次进入重新加载回答
+          actions.setState({
+            question,
+            answer_data: [],
+            answer_pagination: null,
+          });
+
+          // 到回答详情页
+          window.G_QUESTION = state.question;
+          window.G_ANSWER = response.data;
+          location.actions.go(
+            fullPath(
+              `/questions/${state.question_id}/answers/${response.data.answer_id}`,
+            ),
+          );
+        })
+        .catch((response) => {
+          if (response.code === COMMON_FIELD_VERIFY_FAILED) {
+            mdui.snackbar(Object.values(response.errors)[0]);
+            return;
+          }
+
+          apiCatch(response);
         });
-
-        // 到回答详情页
-        window.G_QUESTION = state.question;
-        window.G_ANSWER = response.data;
-        location.actions.go(
-          fullPath(
-            `/questions/${state.question_id}/answers/${response.data.answer_id}`,
-          ),
-        );
-      })
-      .catch((response) => {
-        if (response.code === COMMON_FIELD_VERIFY_FAILED) {
-          mdui.snackbar(Object.values(response.errors)[0]);
-          return;
-        }
-
-        apiCatch(response);
-      });
-  },
+    },
 };
 
 export default extend(

@@ -242,60 +242,64 @@ const as = {
   /**
    * 发布提问
    */
-  publish: ({ title, content }) => (state, actions) => {
-    const { editor_selected_topic_ids: topic_ids, auto_save_key } = state;
+  publish:
+    ({ title, content }) =>
+    (state, actions) => {
+      const { editor_selected_topic_ids: topic_ids, auto_save_key } = state;
 
-    if (!title) {
-      mdui.snackbar('请输入标题');
-      return;
-    }
+      if (!title) {
+        mdui.snackbar('请输入标题');
+        return;
+      }
 
-    if (!topic_ids.length) {
-      mdui.snackbar('请选择话题');
-      return;
-    }
+      if (!topic_ids.length) {
+        mdui.snackbar('请选择话题');
+        return;
+      }
 
-    if (!content || content === '<p><br></p>') {
-      mdui.snackbar('请输入正文');
-      return;
-    }
+      if (!content || content === '<p><br></p>') {
+        mdui.snackbar('请输入正文');
+        return;
+      }
 
-    actions.setState({ publishing: true });
+      actions.setState({ publishing: true });
 
-    createArticle({
-      title,
-      topic_ids,
-      content_rendered: content,
-      include,
-    })
-      .finally(() => {
-        actions.setState({ publishing: false });
+      createArticle({
+        title,
+        topic_ids,
+        content_rendered: content,
+        include,
       })
-      .then((response) => {
-        is_updated[TABNAME_RECENT] = true;
-        is_updated[TABNAME_POPULAR] = true;
-        is_updated[TABNAME_FOLLOWING] = true;
+        .finally(() => {
+          actions.setState({ publishing: false });
+        })
+        .then((response) => {
+          is_updated[TABNAME_RECENT] = true;
+          is_updated[TABNAME_POPULAR] = true;
+          is_updated[TABNAME_FOLLOWING] = true;
 
-        // 清空草稿和编辑器内容
-        window.localStorage.removeItem(`${auto_save_key}-title`);
-        window.localStorage.removeItem(`${auto_save_key}-topics`);
-        window.localStorage.removeItem(`${auto_save_key}-content`);
+          // 清空草稿和编辑器内容
+          window.localStorage.removeItem(`${auto_save_key}-title`);
+          window.localStorage.removeItem(`${auto_save_key}-topics`);
+          window.localStorage.removeItem(`${auto_save_key}-content`);
 
-        actions.editorClose();
+          actions.editorClose();
 
-        // 到文章详情页
-        window.G_ARTICLE = response.data;
-        location.actions.go(fullPath(`/articles/${response.data.article_id}`));
-      })
-      .catch((response) => {
-        if (response.code === COMMON_FIELD_VERIFY_FAILED) {
-          mdui.snackbar(Object.values(response.errors)[0]);
-          return;
-        }
+          // 到文章详情页
+          window.G_ARTICLE = response.data;
+          location.actions.go(
+            fullPath(`/articles/${response.data.article_id}`),
+          );
+        })
+        .catch((response) => {
+          if (response.code === COMMON_FIELD_VERIFY_FAILED) {
+            mdui.snackbar(Object.values(response.errors)[0]);
+            return;
+          }
 
-        apiCatch(response);
-      });
-  },
+          apiCatch(response);
+        });
+    },
 
   /**
    * 点击链接后，保存最后访问的文章ID和文章详情
