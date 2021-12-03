@@ -36,9 +36,6 @@
   cursor: pointer;
   transition: all .2s @animation-curve-default,
   box-shadow .2s @animation-curve-fast-out-linear-in;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
   user-select: none;
 
   // 移除点击延迟触发
@@ -51,6 +48,7 @@
   &:hover {
     background-color: rgba(0, 0, 0, 0.1);
   }
+
   &:not(.mdui-ripple):active {
     background-color: rgba(0, 0, 0, 0.165);
   }
@@ -121,6 +119,7 @@
       line-height: inherit;
     }
   }
+
   .mdui-icon-left {
     float: left;
     margin-right: 0.4em;
@@ -163,6 +162,7 @@ input.mdui-btn[type="submit"] {
       cursor: default !important;
       opacity: 1 !important;
       .mdui-shadow(0) !important;
+
       .mdui-icon {
         color: rgba(0, 0, 0, .26) !important;
       }

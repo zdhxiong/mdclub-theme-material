@@ -41,7 +41,7 @@
   appearance: none;
   resize: none;
 
-  &::-webkit-input-placeholder {
+  &::placeholder {
     color: inherit;
     opacity: 0.42;
   }
@@ -123,7 +123,6 @@
 /* 聚焦状态的文本框
    ============= */
 .mdui-textfield-focus {
-
   .mdui-textfield-input,
   .mdui-textfield-input:hover {
     border-bottom-color: @color-default-a700;
@@ -139,7 +138,6 @@
 /* 含有浮动标签的文本框
    ================ */
 .mdui-textfield-floating-label {
-
   .mdui-textfield-label {
     color: rgba(0, 0, 0, 0.35);
     transform: scale(1) translateY(27px);
@@ -152,6 +150,7 @@
       transform: scale(0.75) translateY(0);
     }
   }
+
   &.mdui-textfield-focus {
     .mdui-textfield-label {
       .mdui-text-color(@color-accent-default-name);
@@ -222,7 +221,6 @@
    =========== */
 .mdui-textfield-invalid,
 .mdui-textfield-invalid-html5 {
-
   .mdui-textfield-input,
   &.mdui-textfield-focus .mdui-textfield-input {
     border-bottom-color: @color-red-a400 !important;
@@ -396,7 +394,6 @@
       @colorA200: 'color-@{colorName}-a200';
 
       .mdui-textfield-focus {
-
         .mdui-textfield-input {
           border-bottom-color: @@colorA700;
           box-shadow: 0 1px 0 0 @@colorA700;
@@ -413,7 +410,6 @@
       & {
         .dark-mode() {
           .mdui-textfield-focus {
-
             .mdui-textfield-input {
               border-bottom-color: @@colorA200;
               box-shadow: 0 1px 0 0 @@colorA200;

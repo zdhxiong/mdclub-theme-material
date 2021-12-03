@@ -4,9 +4,22 @@
     "stylelint-config-rational-order",
     "stylelint-config-prettier"
   ],
+  "overrides": [
+    {
+      "files": ["**/*.less"],
+      "customSyntax": "postcss-less"
+    }
+  ],
   "rules": {
     "no-duplicate-selectors": null,
     "no-descending-specificity": null,
-    "function-calc-no-invalid": null
+    "selector-class-pattern": null,
+    "alpha-value-notation": null,
+    "number-max-precision": null,
+    "selector-pseudo-element-no-unknown": null,
+    "selector-pseudo-class-no-unknown": null,
+    "font-family-name-quotes": null,
+    "color-function-notation": null,
+    "declaration-block-no-duplicate-properties": null
   }
 }

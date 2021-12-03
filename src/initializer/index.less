@@ -9,31 +9,7 @@
 }
 
 /* placeholder 颜色 */
-::-webkit-input-placeholder {
-  color: rgba(0, 0, 0, .42);
-
-  .mdui-theme-layout-dark & {
-    color: rgba(255, 255, 255, .42);
-  }
-}
-
-:-moz-placeholder {
-  color: rgba(0, 0, 0, .42);
-
-  .mdui-theme-layout-dark & {
-    color: rgba(255, 255, 255, .42);
-  }
-}
-
-::-moz-placeholder {
-  color: rgba(0, 0, 0, .42);
-
-  .mdui-theme-layout-dark & {
-    color: rgba(255, 255, 255, .42);
-  }
-}
-
-:-ms-input-placeholder {
+::placeholder {
   color: rgba(0, 0, 0, .42);
 
   .mdui-theme-layout-dark & {
@@ -115,7 +91,7 @@
 .mdui-container {
   width: 100%;
   max-width: 1100px;
-  padding: 8px 0 62px 0;
+  padding: 8px 0 62px;
 
   @media (min-width: @screen-sm-min) {
     width: 96%;
@@ -123,7 +99,7 @@
   }
 
   @media (min-width: @screen-md-min) {
-    padding: 24px 8px 62px 8px;
+    padding: 24px 8px 62px;
   }
 }
 
